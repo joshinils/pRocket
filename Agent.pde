@@ -1,47 +1,76 @@
-class Agent {
+class Agent implements Comparable<Agent>
+{
 	float xPos;
 	float yPos;
 	float xVel;
 	float yVel;
 	float xAcc;
 	float yAcc;
+
 	boolean alive;
 	float score;
 	int winner;
-	
+
+	float xPosStart;
+	float yPosStart;
+	float xVelStart;
+	float yVelStart;
+	float xAccStart;
+	float yAccStart;
+
 	Agent(float x, float y)
 	{
+		xPosStart=x;
+		yPosStart=y;
+		xVelStart=0;
+		yVelStart=0;
+		xAccStart=0;
+		yAccStart=0;
+
 		xPos = x;
 		yPos = y;
-		setVel(0,0);
-		setAcc(0,0);
+		setVel(0, 0);
+		setAcc(0, 0);
 		alive=true;
 		winner=0;
+		score=-3.40282347E+38;
 	}
-	
+
+	void reset()
+	{
+		xPos = xPosStart;
+		yPos = yPosStart;
+		xVel = xVelStart;
+		yVel = yVelStart;
+		xAcc = xAccStart;
+		yAcc = yAccStart;
+		alive=true;
+		winner=0;
+		score=-3.40282347E+38;
+	}
+
 	void setVel(float x, float y)
 	{
 		xVel = x;
 		yVel = y;
+		xVelStart=x;
+		yVelStart=y;
 	}
 
 	void setAcc(float x, float y)
 	{
 		xAcc = x;
 		yAcc = y;
+		xAccStart=x;
+		yAccStart=y;
 	}
-	
+
 	void giveAcc(float x, float y)
 	{
-		float xAccN = xAcc+x;
-		float yAccN = yAcc+y;
-//		float normO = sqrt( xAcc*xAcc	+	yAcc*yAcc );
-//		float normN = sqrt(xAccN*xAccN + yAccN*yAccN);
-//
-		xAcc = xAccN;
-		yAcc = yAccN;
+		xAcc += x;
+		yAcc += y;
 	}
-	
+
 	void kill()
 	{
 		xVel=0;
@@ -51,24 +80,24 @@ class Agent {
 
 		alive=false;
 	}
-	
+
 	void setScore(float x)
 	{
 		score=x;
 	}
-	
+
 	float getScore()
 	{
 		return score;
 	}
-	
+
+	static final float size=15;
 	void draw()
 	{
 		float vLength=sqrt(xVel*xVel + yVel*yVel);
 		float xVN=xVel/vLength;
 		float yVN=yVel/vLength;
-		
-		float size=15;
+
 		float xFro=xPos+xVN*size;
 		float yFro=yPos+yVN*size;
 
@@ -77,29 +106,39 @@ class Agent {
 
 		float xBaL=xPos + (-0.5			*xVN - 0.8660254*yVN)*size/2;
 		float yBaL=yPos + ( 0.8660254*xVN - 0.5			*yVN)*size/2;
-		
-		fill(255,255,255,100+100*int(alive));
-		stroke(255,255,255,50+50*int(alive));
+
+		fill(255, 255, 255, 100+100*int(alive));
+		stroke(255, 255, 255, 50+50*int(alive));
 		triangle(xFro, yFro, xBaL, yBaL, xBaR, yBaR);
-		
-		stroke(255,255,255,100);
-		if(alive)
-			fill(255, 255,	0, 200);
-		else if(winner==1)
-			fill(	0, 255,	0, 200);
+
+		stroke(255, 255, 255, 100);
+		if (alive)
+			fill(255, 255, 	0, 200);
+		else if (winner==1)
+			fill(	0, 255, 	0, 200);
 		else
-			fill(255,	 0,	0, 200);
+			fill(255, 	 0, 	0, 200);
 		ellipse(xPos, yPos, size/3, size/3);
 	}
-	
+
+	void drawScore() {	
+		drawScore(0, 255);
+	}
+	void drawScore(float min, float max)
+	{
+		float col= (score-min)/(max-min)*250;
+		fill(col);
+		ellipse(xPos, yPos, size/3, size/3);
+	}
+
 	void animate()
 	{
-		if(!alive)
+		if (!alive)
 			return;
-		
+
 		xPos += xVel;
 		yPos += yVel;
-		
+
 		xVel += xAcc;
 		yVel += yAcc;
 
@@ -112,24 +151,30 @@ class Agent {
 		xAcc*=0.5;
 		yAcc*=0.5;
 
-		if(xPos >= width)
+		if (xPos >= width)
 			xPos -= width;
-		if(yPos >= height)
+		if (yPos >= height)
 			yPos -= height;
-		
-		if(xPos < 0)
+
+		if (xPos < 0)
 			xPos += width;
-		if(yPos < 0)
+		if (yPos < 0)
 			yPos += height;
-			
-		for(int i=0; i < barrierAmount; ++i)
+
+		for (int i=0; i < barrierAmount; ++i)
 		{
-			if(		xPos >= barrier[i].xTop && xPos <= barrier[i].xTop + barrier[i].xWid
-					&& yPos >= barrier[i].yTop && yPos <= barrier[i].yTop + barrier[i].yWid)
+			if (		xPos >= barrier[i].xTop && xPos <= barrier[i].xTop + barrier[i].xWid
+				&& yPos >= barrier[i].yTop && yPos <= barrier[i].yTop + barrier[i].yWid)
 			{
 				alive=false;
 				winner=int((int(barrier[i].good)-.5)*2);
 			}
 		}
+	}
+
+	public int compareTo(Agent other)
+	{
+		return int(other.score - score);
+//		return int(score - other.score);
 	}
 }
