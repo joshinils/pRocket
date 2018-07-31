@@ -6,6 +6,7 @@ class Agent implements Comparable<Agent>
 	float yVel;
 	float xAcc;
 	float yAcc;
+	Direction dir;
 
 	boolean alive;
 	float score;
@@ -18,7 +19,7 @@ class Agent implements Comparable<Agent>
 	float xAccStart;
 	float yAccStart;
 
-	Agent(float x, float y)
+	Agent(float x, float y, Direction d)
 	{
 		xPosStart=x;
 		yPosStart=y;
@@ -27,6 +28,7 @@ class Agent implements Comparable<Agent>
 		xAccStart=0;
 		yAccStart=0;
 
+		dir=d;
 		xPos = x;
 		yPos = y;
 		setVel(0, 0);
@@ -107,8 +109,8 @@ class Agent implements Comparable<Agent>
 		float xBaL=xPos + (-0.5			*xVN - 0.8660254*yVN)*size/2;
 		float yBaL=yPos + ( 0.8660254*xVN - 0.5			*yVN)*size/2;
 
-		fill(255, 255, 255, 100+100*int(alive));
-		stroke(255, 255, 255, 50+50*int(alive));
+		fill(255, 255, 255, 10+10*int(alive));
+		stroke(255, 255, 255, 5+5*int(alive));
 		triangle(xFro, yFro, xBaL, yBaL, xBaR, yBaR);
 
 		stroke(255, 255, 255, 100);
@@ -167,14 +169,15 @@ class Agent implements Comparable<Agent>
 				&& yPos >= barrier[i].yTop && yPos <= barrier[i].yTop + barrier[i].yWid)
 			{
 				alive=false;
-				winner=int((int(barrier[i].good)-.5)*2);
+				winner=int((int(barrier[i].good)-.5)*2.01);
 			}
 		}
 	}
 
+	@Override
 	public int compareTo(Agent other)
 	{
-		return int(other.score - score);
-//		return int(score - other.score);
+		return int(other.score - this.score);
+//		return int(this.score - other.score);
 	}
 }
